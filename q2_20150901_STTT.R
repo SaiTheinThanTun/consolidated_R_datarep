@@ -20,11 +20,13 @@ setwd("C:/Users/Tom/Dropbox/1. MAEMOD/QGIS/2014 MARC Data")
 
 q2 <- read.csv("Q2.csv")
 
+yr_id <- c(2012,2013,2014) #years to include
+
 q2$Month[q2$Month=="April"] <- "Apr" #remove after being cleaned
 q2$Month[q2$Month=="July"] <- "Jul"
 
-#Subsetting for 2014 MARC, #and outcomes
-q2 <- q2[q2$Year=="2014",]
+#Subsetting for MARC, #and outcomes
+
 marc_p <- readLines("MARC PCodes.csv")
 q2 <- q2[q2$TS_Pcode %in% marc_p[-1],]
 q2 <- q2[q2$Volunteer.Villages!="",]
@@ -47,7 +49,21 @@ q2$Month <- factor(q2$Month, c("JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","
 q2$MaxOfState..Division <- toupper(q2$MaxOfState..Division)
 
 
-library(reshape2)
+pwd <- getwd()
+q2_org <- q2
+
+for (i in 1:length(yr_id)){
+  yr_id_i <- as.character(yr_id[i])
+  
+  if(file.exists(yr_id_i)){
+    setwd(file.path(pwd,yr_id_i))
+  } else {
+    dir.create(file.path(pwd,yr_id_i))
+    setwd(file.path(pwd,yr_id_i))
+  }
+  
+q2 <- q2_org[q2_org$Year==yr_id_i,]
+
 
 m_q2 <- melt(q2, names(q2)[-9]) #To place "CountOfOutcome" as value
 m_q2 <- m_q2[m_q2$value!=0,]
@@ -89,12 +105,13 @@ dev.off()
 
 #7. Table1: CHW count per [Township,IP] #Assuming that each village has a volunteer
 chw_tsp_ip <- dcast(uniq_villages, TS_Pcode+MaxOfTownship ~ Source, length, value.var="TS_Pcode")
-chw_tsp_ip$total <- rowSums(chw_tsp_ip[,3:12])
+chw_tsp_ip$total <- rowSums(chw_tsp_ip[,3:(2+length(unique(uniq_villages$Source)))])
 write.csv(chw_tsp_ip, paste("CHW_count_tsp_IP_", Sys.Date(),".csv",sep=""))
 
 #8. Table2: Number of CHW test per [Township, IP] #Assuming that each village has a volunteer
 chwtst_tsp_ip <- dcast(uniq_villages, TS_Pcode+MaxOfTownship ~ Source, sum, value.var="CountOfOutcome")
-chwtst_tsp_ip[,3:13] <- round(chwtst_tsp_ip[,3:13], digits=0)
+chwtst_tsp_ip[,3:(2+length(unique(uniq_villages$Source)))] <- round(chwtst_tsp_ip[,3:(2+length(unique(uniq_villages$Source)))], digits=0)
 write.csv(chwtst_tsp_ip, paste("CHW_test_tsp_IP_", Sys.Date(),".csv",sep=""))
 
-
+setwd(pwd) #put this in the end!!!!!!!
+}

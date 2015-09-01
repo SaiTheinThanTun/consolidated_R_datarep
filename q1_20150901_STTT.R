@@ -29,7 +29,7 @@ setwd("C:/Users/Tom/Dropbox/1. MAEMOD/QGIS/2014 MARC Data")
 #q1_1_cleaning
 #Setting up name vectors for Outcome & Type categories
 pf <- c("Mix","pf","Pf","PF")
-npf <- c("Non-Pf","pv","Pv")
+npf <- c("Non-Pf","pv","Pv", "Npf", "NPf")
 neg <- "Neg"
 type2include <- c("Clinic","HF","Volunteer") #There's no Mobile and Screening points in 2013 data
 yr_id <- c(2012,2013,2014) #years to include
@@ -74,6 +74,7 @@ rdt$Township <- toupper(rdt$Township)
 
 #Recoding the Outcome variable
 rdt$Outcome[rdt$Outcome %in% pf] <- "Pf"
+levels(rdt$Outcome) <- c(levels(rdt$Outcome),"Non-Pf")
 rdt$Outcome[rdt$Outcome %in% npf] <- "Non-Pf"
 #rdt$Outcome[rdt$Outcome %in% neg] <- "Neg"
 rdt$Outcome <- factor(rdt$Outcome)
@@ -82,10 +83,21 @@ rdt$Outcome <- factor(rdt$Outcome)
 levels(rdt$Source)[levels(rdt$Source)=="WHO"] <- "WHO/NMCP"
 levels(rdt$Source)[levels(rdt$Source)=="NMCP"] <- "BHS"
 
-for (i in yr_id){
+pwd <- getwd()
+rdt_org <- rdt
+
+for (i in 1:length(yr_id)){
+  yr_id_i <- as.character(yr_id[i])
+  
+  if(file.exists(yr_id_i)){
+    setwd(file.path(pwd,yr_id_i))
+  } else {
+    dir.create(file.path(pwd,yr_id_i))
+    setwd(file.path(pwd,yr_id_i))
+  }
   
   
-rdt <- rdt[rdt$Yr==as.character(i),] #subsetting for whatever year
+rdt <- rdt_org[rdt_org$Yr==yr_id_i,] #subsetting for whatever year
 #q1_2_table.R
 
 #1. Table1: Outcomes per IP
@@ -125,16 +137,16 @@ trendplot <- function(rdt=rdt, type){
   if(type=="chw"){
     rdt <- rdt[rdt$Expr1=="CHW"|rdt$Expr1=="Village",]
     typep <- "Community Health Worker"
-    y_limits <- c(300,2000)
+    #y_limits <- c(300,2000)
   }
   if(type=="hf"){
     rdt <- rdt[rdt$Expr1=="HF",]
     typep <- "Health Facility"
-    y_limits <- c(500,2000)
+    #y_limits <- c(500,2000)
   }
   if(type=="all") {
     typep <- "Health facility and CHW"
-    y_limits <- c(500,3500)
+    #y_limits <- c(500,3500)
   }
   
   combined <- dcast(rdt, Yr+Mth ~ Outcome, sum, na.rm=TRUE, value.var="Number") #To graph testing per month graphs
@@ -142,6 +154,8 @@ trendplot <- function(rdt=rdt, type){
   
   
   combined$yrmth <- as.yearmon(paste(combined$Yr,combined$Mth), "%Y %b")
+  y_limits <- c(min(c(min(combined$`Non-Pf`),min(combined$Pf))),max(c(max(combined$`Non-Pf`),max(combined$Pf)))) #c(min(combined$`Non-Pf`),max(combined$Pf))
+  
   combined$pf_npf <- combined$Pf+combined$`Non-Pf`
   combined$tested <- combined$Pf+combined$`Non-Pf`+combined$Neg
   
@@ -223,4 +237,6 @@ par(mar=c(8,4,4,2))
 barplot(as.matrix(prop_tsp_df), cex.names=.8, las=2, col=c("cornflowerblue","orange","coral1"), border="white", main="Percentage of Malaria Outcomes in different Townships\n MARC region, 2014", ylab="Percentage of Malaria Outcomes per Township")
 legend("bottomright",legend=c("Negative","Non-Pf","Pf+Pmix"),fill=c("cornflowerblue","orange","coral1"))
 dev.off()
+
+setwd(pwd) #put this in the end!!!!!!!
 }

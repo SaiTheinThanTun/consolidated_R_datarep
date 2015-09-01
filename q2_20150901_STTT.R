@@ -13,6 +13,7 @@ setwd("C:/WorkingDirectoryName") #The name and path can be anywhere in your comp
 #5. Plot5: Testing per State/Division, boxplot with outliers
 #6. Plot6: Testing per State/Division, boxplot no outliers
 #7. Table1: CHW count per [Township,IP] #Assuming that each village has a volunteer
+#8. Table2: Number of CHW test per [Township, IP] #Assuming that each village has a volunteer
 
 library(reshape2)
 

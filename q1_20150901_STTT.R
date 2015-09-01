@@ -104,20 +104,20 @@ rdt <- rdt_org[rdt_org$Yr==yr_id_i,] #subsetting for whatever year
 #Per Source (IP)
 perSource2014 <- dcast(rdt, Source ~ Outcome, sum, na.rm=TRUE, value.var="Number")
 perSource2014$Total <- perSource2014$Neg+perSource2014$`Non-Pf`+perSource2014$Pf
-write.csv(perSource2014, paste("OCperIP2014_",Sys.Date(),".csv",sep=""))
+write.csv(perSource2014, paste("OCperIP_",Sys.Date(),".csv",sep=""))
 
 #2. Table2: Outcomes per States, Regions
 #Per Townships
 perTsp2014 <- dcast(rdt, Tsp_Code+Township ~ Outcome, sum, na.rm=TRUE, value.var="Number")
 perTsp2014$Total <- perTsp2014$Neg+perTsp2014$`Non-Pf`+perTsp2014$Pf
-write.csv(perTsp2014, paste("OCperTsp2014_",Sys.Date(),".csv",sep=""))
+write.csv(perTsp2014, paste("OCperTsp_",Sys.Date(),".csv",sep=""))
 
 
 #3. Table3: Outcomes per Townships
 #Per States/Divisions
 perStates2014 <- dcast(rdt, State_Region ~ Outcome, sum, na.rm=TRUE, value.var="Number")
 perStates2014$Total <- perStates2014$Neg+perStates2014$`Non-Pf`+perStates2014$Pf
-write.csv(perStates2014, paste("OCperStates2014_",Sys.Date(),".csv",sep=""))
+write.csv(perStates2014, paste("OCperStates_",Sys.Date(),".csv",sep=""))
 
 #4. Table4: Xtab Townships against IP (Total tests)
 #Townships vs IP
@@ -161,7 +161,7 @@ trendplot <- function(rdt=rdt, type){
   
   #Plotting
   png(file=paste(typep,Sys.Date(),".png",sep=""), width=960, height=960)
-  plot(combined$Pf ~ combined$yrmth, type="l", col="coral1", ylim=y_limits, main=paste("Malaria incidence (",typep,")\nMARC region, 2014",sep=""), xlab="Months", ylab="No. of Malaria Cases",lwd=3)
+  plot(combined$Pf ~ combined$yrmth, type="l", col="coral1", ylim=y_limits, main=paste("Malaria incidence (",typep,")\nMARC region, ",yr_id_i,sep=""), xlab="Months", ylab="No. of Malaria Cases",lwd=3)
   lines(combined$`Non-Pf` ~ combined$yrmth, type="l", col="orange", lwd=3)
   legend("topright", legend=c("Pf+Pmix","Non-Pf"),lty=1, lwd=3,col=c("coral1","orange"))
   grid()
@@ -180,7 +180,7 @@ tcomb <- t(combined[,-1])
 colnames(tcomb) <- tcomb[1,]
 tcomb <- tcomb[-1,]
 png(file=paste("stacked_oc_mnth_",Sys.Date(),".png",sep=""), width=850, height=480)
-barplot(tcomb, col=c("cornflowerblue","orange","coral1"), border="white", main="Malaria Outcomes per Month\n MARC region, 2014", ylab="No. of Malaria Outcomes")
+barplot(tcomb, col=c("cornflowerblue","orange","coral1"), border="white", main=paste("Malaria Outcomes per Month\n MARC region, ",yr_id_i,sep = ""), ylab="No. of Malaria Outcomes")
 legend("topleft",legend=c("Negative","Non-Pf","Pf+Pmix"),fill=c("cornflowerblue","orange","coral1"), horiz=TRUE)
 dev.off()
 
@@ -188,7 +188,7 @@ dev.off()
 tcomb_prop <- t(prop.table(as.matrix(combined[,3:5]),1))
 colnames(tcomb_prop) <- combined$Mth
 png(file=paste("stacked_oc_mnth_percent_",Sys.Date(),".png",sep=""), width=850, height=480)
-barplot(tcomb_prop, col=c("cornflowerblue","orange","coral1"), border="white", main="Percentage of Malaria Outcomes per Month\n MARC region, 2014", ylab="Percentage of Malaria Outcomes per Month")
+barplot(tcomb_prop, col=c("cornflowerblue","orange","coral1"), border="white", main=paste("Percentage of Malaria Outcomes per Month\n MARC region, ",yr_id_i,sep = ""), ylab="Percentage of Malaria Outcomes per Month")
 legend("bottomright",legend=c("Negative","Non-Pf","Pf+Pmix"),fill=c("cornflowerblue","orange","coral1"))
 dev.off()
 
@@ -199,7 +199,7 @@ tstates <- t(states)
 colnames(tstates) <- states$State_Region
 tstates <- tstates[-1,]
 png(file=paste("stacked_oc_states_",Sys.Date(),".png",sep=""), width=850, height=480)
-barplot(tstates, col=c("cornflowerblue","orange","coral1"), border="white", main="Malaria Outcomes per State/Division\n in MARC region, 2014", ylab="No. of Malaria Outcomes")
+barplot(tstates, col=c("cornflowerblue","orange","coral1"), border="white", main=paste("Malaria Outcomes per State/Division\n in MARC region, ",yr_id_i,sep=""), ylab="No. of Malaria Outcomes")
 legend("topleft",legend=c("Negative","Non-Pf","Pf+Pmix"),fill=c("cornflowerblue","orange","coral1"), horiz=TRUE)
 dev.off()
 
@@ -208,7 +208,7 @@ dev.off()
 prop <- t(prop.table(as.matrix(states[,2:4]),1))
 colnames(prop) <- states$State_Region
 png(file=paste("stacked_oc_states_percent_",Sys.Date(),".png",sep=""), width=850, height=480)
-barplot(prop,col=c("cornflowerblue","orange","coral1"), border="white", main="Percentage of Malaria Outcomes in different States/Divisions\n MARC region, 2014", ylab="Percentage of Malaria Outcomes per State/Division")
+barplot(prop,col=c("cornflowerblue","orange","coral1"), border="white", main=paste("Percentage of Malaria Outcomes in different States/Divisions\n MARC region, ",yr_id_i,sep = ""), ylab="Percentage of Malaria Outcomes per State/Division")
 legend("bottomright",legend=c("Negative","Non-Pf","Pf+Pmix"),fill=c("cornflowerblue","orange","coral1"))
 dev.off()
 
@@ -221,7 +221,7 @@ colnames(ttsp) <- tsp$Township
 ttsp <- ttsp[-1,]
 png(file=paste("stacked_oc_tsp_",Sys.Date(),".png",sep=""), width=1000, height=800)
 par(mar=c(8,6,4,2))
-barplot(ttsp, col=c("cornflowerblue","orange","coral1"), border="white", main="Malaria Outcomes per Township\n in MARC region, 2014", ylab="No. of Malaria Outcomes", las=2, cex.names=.8, mgp=c(4,1,0))
+barplot(ttsp, col=c("cornflowerblue","orange","coral1"), border="white", main=paste("Malaria Outcomes per Township\n in MARC region, ",yr_id_i,sep=""), ylab="No. of Malaria Outcomes", las=2, cex.names=.8, mgp=c(4,1,0))
 legend("topright",legend=c("Negative","Non-Pf","Pf+Pmix"),fill=c("cornflowerblue","orange","coral1"), horiz=TRUE)
 dev.off()
 
@@ -234,7 +234,7 @@ prop_tsp_df <- as.data.frame(prop_tsp)
 
 png(file=paste("stacked_oc_tsp_percent_",Sys.Date(),".png",sep=""), width=1000, height=500)
 par(mar=c(8,4,4,2))
-barplot(as.matrix(prop_tsp_df), cex.names=.8, las=2, col=c("cornflowerblue","orange","coral1"), border="white", main="Percentage of Malaria Outcomes in different Townships\n MARC region, 2014", ylab="Percentage of Malaria Outcomes per Township")
+barplot(as.matrix(prop_tsp_df), cex.names=.8, las=2, col=c("cornflowerblue","orange","coral1"), border="white", main=paste("Percentage of Malaria Outcomes in different Townships\n MARC region, ",yr_id_i,sep = ""), ylab="Percentage of Malaria Outcomes per Township")
 legend("bottomright",legend=c("Negative","Non-Pf","Pf+Pmix"),fill=c("cornflowerblue","orange","coral1"))
 dev.off()
 
